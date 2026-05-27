@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Athlete App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <div class="brand-logo">Athlete</div>
+    <div class="brand-sub">Performance Tracking</div>
+  </div>
+
+  <!-- AUTH VIEW -->
+  <div class="view active" id="view-auth">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+        <button class="tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
+      <div id="alert-auth" class="alert"></div>
+      <div id="form-login">
+        <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"/></div>
+        <button class="btn btn-primary" id="btn-login" onclick="handleLogin()">Login</button>
+      </div>
+      <div id="form-register" style="display:none;">
+        <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="reg-password" placeholder="Min 6 characters" autocomplete="new-password"/></div>
+        <button class="btn btn-primary" id="btn-register" onclick="handleRegister()">Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE SETUP VIEW -->
+  <div class="view" id="view-setup">
+    <div class="card">
+      <div style="margin-bottom:1.5rem;"><div class="section-title">Complete Your Profile</div></div>
+      <div id="alert-setup" class="alert"></div>
+      <div class="form-group"><label>Full Name</label><input type="text" id="setup-name" placeholder="Your full name"/></div>
+      <div class="form-group">
+        <label>Sport</label>
+        <select id="setup-sport">
+          <option value="">Select your sport</option>
+          <option>Basketball</option><option>Baseball</option><option>Cricket</option>
+          <option>Football</option><option>Soccer</option><option>Track &amp; Field</option>
+          <option>Swimming</option><option>Cycling</option><option>Weightlifting</option>
+          <option>CrossFit</option><option>MMA</option><option>Gymnastics</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Age</label><input type="number" id="setup-age" placeholder="25" min="10" max="100"/></div>
+        <div class="form-group"><label>Height (cm)</label><input type="number" id="setup-height" placeholder="175"/></div>
+      </div>
+      <div class="form-group"><label>Weight (kg)</label><input type="number" id="setup-weight" placeholder="70" step="0.1"/></div>
+      <button class="btn btn-primary" id="btn-save-profile" onclick="handleSaveProfile()">Save Profile</button>
+    </div>
+  </div>
+
+  <!-- MAIN VIEW -->
+  <div class="view" id="view-main">
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-panel="dashboard" onclick="switchPanel('dashboard')">Dashboard</button>
+      <button class="nav-tab" data-panel="workouts" onclick="switchPanel('workouts')">Workouts</button>
+      <button class="nav-tab" data-panel="nutrition" onclick="switchPanel('nutrition')">Nutrition</button>
+      <button class="nav-tab" data-panel="health" onclick="switchPanel('health')">Health</button>
+      <button class="nav-tab" data-panel="performance" onclick="switchPanel('performance')">Performance</button>
+      <button class="nav-tab" data-panel="goals" onclick="switchPanel('goals')">Goals</button>
+      <button class="nav-tab" data-panel="calendar" onclick="switchPanel('calendar')">Calendar</button>
+    </div>
+
+    <!-- DASHBOARD PANEL -->
+    <div class="panel active" id="panel-dashboard">
+
+      <!-- Profile mini-card -->
+      <div class="dash-profile-card">
+        <div class="dash-profile-left">
+          <div class="avatar" id="dash-avatar">—</div>
+          <div>
+            <div class="dash-name" id="dash-name">—</div>
+            <div class="dash-sport" id="dash-sport">—</div>
+          </div>
+        </div>
+        <button class="btn btn-outline dash-profile-btn" onclick="switchPanel('profile')">Profile</button>
+      </div>
+
+      <!-- Week at a glance -->
+      <div class="card">
+        <div class="section-title">This Week</div>
+        <div class="dash-week-grid">
+          <div class="dash-week-stat">
+            <div class="dash-week-value" id="dash-workouts">—</div>
+            <div class="dash-week-label">Workouts</div>
+          </div>
+          <div class="dash-week-stat dash-streak">
+            <div class="dash-week-value" id="dash-streak">—</div>
+            <div class="dash-week-label">Day Streak 🔥</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nutrition today -->
+      <div class="card">
+        <div class="dash-card-header">
+          <div class="section-title" style="margin:0">Nutrition Today</div>
+          <button class="dash-see-all" onclick="switchPanel('nutrition')">Log Meal</button>
+        </div>
+        <div class="dash-nutr-summary">
+          <div class="dash-nutr-cal">
+            <span class="dash-nutr-cal-val" id="dash-cal">—</span>
+            <span class="dash-nutr-cal-label">kcal</span>
+            <span class="dash-nutr-cal-goal" id="dash-cal-goal"></span>
+          </div>
+          <div class="dash-macro-rows" id="dash-macro-rows"></div>
+        </div>
+      </div>
+
+      <!-- Health today -->
+      <div class="card">
+        <div class="dash-card-header">
+          <div class="section-title" style="margin:0">Health Today</div>
+          <button class="dash-see-all" onclick="switchPanel('health')">Details</button>
+        </div>
+        <div class="dash-health-row">
+          <div class="dash-health-item">
+            <div class="dash-health-val" id="dash-steps">—</div>
+            <div class="dash-health-lbl">Steps</div>
+          </div>
+          <div class="dash-health-item">
+            <div class="dash-health-val" id="dash-sleep">—</div>
+            <div class="dash-health-lbl">Sleep hrs</div>
+          </div>
+          <div class="dash-health-item">
+            <div class="dash-health-val" id="dash-hr">—</div>
+            <div class="dash-health-lbl">Avg BPM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active goals -->
+      <div class="card">
+        <div class="dash-card-header">
+          <div class="section-title" style="margin:0">Active Goals</div>
+          <button class="dash-see-all" onclick="switchPanel('goals')">All Goals</button>
+        </div>
+        <div id="dash-goals-list">
+          <p class="empty-msg" style="padding:1rem 0">No active goals. <button class="dash-inline-btn" onclick="switchPanel('goals')">Add one</button></p>
+        </div>
+      </div>
+
+      <!-- Recent PRs -->
+      <div class="card">
+        <div class="dash-card-header">
+          <div class="section-title" style="margin:0">Recent PRs</div>
+          <button class="dash-see-all" onclick="switchPanel('performance')">All PRs</button>
+        </div>
+        <div id="dash-prs-list">
+          <p class="empty-msg" style="padding:1rem 0">No PRs logged yet.</p>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="card">
+        <div class="dash-card-header">
+          <div class="section-title" style="margin:0">Achievements</div>
+          <span class="dash-badge-count" id="dash-badge-count"></span>
+        </div>
+        <div id="dash-achievements-grid" class="badge-grid">
+          <p class="empty-msg" style="padding:1rem 0">Loading...</p>
+        </div>
+      </div>
+
+      <!-- AI Weekly Summary -->
+      <div class="card" id="ai-summary-card">
+        <div class="dash-card-header">
+          <div class="section-title" style="margin:0">AI Coach</div>
+          <button class="dash-see-all" id="ai-summary-btn" onclick="loadAISummary()">Get Summary</button>
+        </div>
+        <div id="ai-summary-content">
+          <p class="empty-msg" style="padding:.75rem 0;font-size:.82rem;">Click "Get Summary" for your weekly AI coaching report.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PROFILE PANEL (accessible from dashboard) -->
+    <div class="panel" id="panel-profile">
+      <div class="card">
+        <div class="profile-header">
+          <div class="avatar" id="profile-avatar">—</div>
+          <div>
+            <div class="profile-name" id="profile-name">—</div>
+            <div class="profile-sport" id="profile-sport">—</div>
+          </div>
+        </div>
+        <div class="section-title">Stats</div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-value" id="stat-age">—</div><div class="stat-label">Age</div></div>
+          <div class="stat"><div class="stat-value" id="stat-height">—</div><div class="stat-label">Height cm</div></div>
+          <div class="stat"><div class="stat-value" id="stat-weight">—</div><div class="stat-label">Weight kg</div></div>
+        </div>
+        <div class="logout-row">
+          <span class="logout-info" id="profile-joined">Member since —</span>
+          <button class="btn btn-outline" onclick="handleLogout()" style="width:auto;padding:0.5rem 1rem;">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKOUTS PANEL -->
+    <div class="panel" id="panel-workouts">
+      <div class="wkt-sub-tabs">
+        <button class="wkt-sub-tab active" onclick="switchWorkoutTab('log')">Log</button>
+        <button class="wkt-sub-tab" onclick="switchWorkoutTab('history')">History</button>
+        <button class="wkt-sub-tab" onclick="switchWorkoutTab('programs')">Programs</button>
+        <button class="wkt-sub-tab" onclick="switchWorkoutTab('ai')">AI Coach</button>
+      </div>
+
+      <!-- LOG SUB-PANEL -->
+      <div class="wkt-sub-panel active" id="wkt-log">
+        <div class="card">
+          <div class="section-title">Log a Workout</div>
+          <div id="alert-workout" class="alert"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sport</label>
+              <select id="log-sport" onchange="handleSportChange()">
+                <option value="">Select sport</option>
+                <option>Basketball</option><option>Baseball</option><option>Cricket</option>
+                <option>Football</option><option>Soccer</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Date</label><input type="date" id="log-date"/></div>
+          </div>
+          <div id="sessionTypeContainer"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Duration (min)</label><input type="number" id="log-duration" placeholder="60" min="1"/></div>
+            <div class="form-group"><label>Distance (km)</label><input type="number" id="log-distance" placeholder="5.0" step="0.1"/></div>
+          </div>
+          <div id="sport-stats-container"></div>
+          <div class="section-title" style="margin-top:0.5rem;">Exercises</div>
+          <div class="exercise-list" id="exercise-list"></div>
+          <button class="add-exercise-btn" onclick="showAddExercise()">+ Add Exercise</button>
+          <div id="exercise-form" style="display:none;background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <div class="form-group">
+              <label>Exercise Name</label>
+              <div class="ex-autocomplete">
+                <input type="text" id="ex-name" placeholder="e.g. Bench Press" oninput="onExNameInput()" autocomplete="off"/>
+                <div class="ex-suggestions" id="ex-suggestions"></div>
+              </div>
+            </div>
+            <div class="form-row-3">
+              <div class="form-group"><label>Sets</label><input type="number" id="ex-sets" placeholder="3" min="1"/></div>
+              <div class="form-group"><label>Reps</label><input type="number" id="ex-reps" placeholder="10" min="1"/></div>
+              <div class="form-group"><label>Weight (kg)</label><input type="number" id="ex-weight" placeholder="50" step="0.5"/></div>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" onclick="addExercise()" style="font-family:var(--font-body);font-size:0.85rem;letter-spacing:0;">Add</button>
+              <button class="btn btn-outline btn-sm" onclick="hideAddExercise()">Cancel</button>
+            </div>
+          </div>
+          <div class="form-group"><label>Notes</label><textarea id="log-notes" placeholder="How did it go?"></textarea></div>
+          <button class="btn btn-primary" id="btn-log-workout" onclick="handleLogWorkout()">Save Workout</button>
+        </div>
+      </div>
+
+      <!-- HISTORY SUB-PANEL -->
+      <div class="wkt-sub-panel" id="wkt-history">
+        <div id="alert-history" class="alert"></div>
+        <div class="section-title">Analytics</div>
+        <div class="analytics-range">
+          <button class="range-pill" onclick="setAnalyticsRange('7d')">7D</button>
+          <button class="range-pill active" onclick="setAnalyticsRange('30d')">30D</button>
+          <button class="range-pill" onclick="setAnalyticsRange('90d')">90D</button>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Volume — Sessions &amp; Reps per Week</div>
+          <canvas id="chart-volume" height="180"></canvas>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Strength Progress</div>
+          <select id="strength-exercise-select" onchange="loadStrengthChart()">
+            <option value="">Select exercise...</option>
+          </select>
+          <canvas id="chart-strength" height="180"></canvas>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Trends — Duration &amp; Intensity</div>
+          <canvas id="chart-trends" height="180"></canvas>
+        </div>
+        <hr class="analytics-divider">
+        <div class="section-title">History</div>
+        <div id="workout-history-list">
+          <div class="empty-state"><div class="empty-icon">🏋️</div>Loading workouts...</div>
+        </div>
+      </div>
+
+      <!-- PROGRAMS SUB-PANEL -->
+      <div class="wkt-sub-panel" id="wkt-programs">
+        <div id="alert-programs" class="alert"></div>
+
+        <div class="section-title">Preset Templates</div>
+        <div id="preset-programs-list">
+          <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
+        </div>
+
+        <div class="prog-section-header">
+          <div class="section-title" style="margin:0">My Programs</div>
+          <button class="btn btn-outline" style="width:auto;padding:0.45rem 0.9rem;font-size:0.8rem;" onclick="openCreateProgramModal()">+ Custom</button>
+        </div>
+        <div id="my-programs-list">
+          <p class="empty-msg">No saved programs yet.</p>
+        </div>
+      </div>
+
+      <!-- AI COACH SUB-PANEL -->
+      <div class="wkt-sub-panel" id="wkt-ai">
+        <div class="card">
+          <div class="section-title">AI Workout Generator</div>
+          <p class="ai-intro">Describe your goal and get a full, personalised program from AI.</p>
+          <div class="form-group">
+            <label>Your Goal</label>
+            <textarea id="ai-goal-input" rows="3" placeholder='e.g. "I want to dunk a basketball in 3 months" or "Build endurance for a 10K race"'></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sport (optional)</label>
+              <select id="ai-sport-select">
+                <option value="">Any</option>
+                <option>Basketball</option><option>Soccer</option><option>Football</option>
+                <option>Baseball</option><option>Cricket</option><option>Track &amp; Field</option>
+                <option>Swimming</option><option>Weightlifting</option><option>CrossFit</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Days / Week</label>
+              <select id="ai-days-select">
+                <option value="3">3 days</option>
+                <option value="4" selected>4 days</option>
+                <option value="5">5 days</option>
+                <option value="6">6 days</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="ai-generate-btn" onclick="generateAIProgram()">Generate Program</button>
+          <div id="ai-generate-result" style="margin-top:1rem"></div>
+        </div>
+
+        <div class="card" style="margin-top:0">
+          <div class="section-title">Exercise Form Tips</div>
+          <p class="ai-intro" style="margin-bottom:.75rem">Get AI form cues for any exercise.</p>
+          <div class="ai-tips-row">
+            <input type="text" id="ai-tips-input" placeholder="e.g. Bench Press, Box Jump..." autocomplete="off"/>
+            <button class="ai-tips-btn" onclick="fetchExerciseTips()">Get Tips</button>
+          </div>
+          <div id="ai-tips-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NUTRITION PANEL -->
+    <div class="panel" id="panel-nutrition">
+      <div class="nutrition-header">
+        <h2>Nutrition</h2>
+        <div class="date-nav">
+          <button class="icon-btn" id="nutr-prev-day">&#8249;</button>
+          <input type="date" id="nutr-date" />
+          <button class="icon-btn" id="nutr-next-day">&#8250;</button>
+        </div>
+      </div>
+      <div id="nutr-goals-banner" class="goals-banner" style="display:none">
+        <p>📋 Set your daily nutrition goals to track progress.</p>
+        <button onclick="openGoalsModal()">Set Goals</button>
+      </div>
+      <div class="macro-grid">
+        <div class="macro-card">
+          <span class="macro-label">Calories</span>
+          <span class="macro-value" id="mv-calories">—</span>
+          <div class="macro-bar-track"><div class="macro-bar" id="mb-calories" style="width:0%"></div></div>
+          <span class="macro-goal" id="mg-calories">/ — kcal</span>
+        </div>
+        <div class="macro-card">
+          <span class="macro-label">Protein</span>
+          <span class="macro-value" id="mv-protein">—</span>
+          <div class="macro-bar-track"><div class="macro-bar protein" id="mb-protein" style="width:0%"></div></div>
+          <span class="macro-goal" id="mg-protein">/ — g</span>
+        </div>
+        <div class="macro-card">
+          <span class="macro-label">Carbs</span>
+          <span class="macro-value" id="mv-carbs">—</span>
+          <div class="macro-bar-track"><div class="macro-bar carbs" id="mb-carbs" style="width:0%"></div></div>
+          <span class="macro-goal" id="mg-carbs">/ — g</span>
+        </div>
+        <div class="macro-card">
+          <span class="macro-label">Fats</span>
+          <span class="macro-value" id="mv-fats">—</span>
+          <div class="macro-bar-track"><div class="macro-bar fats" id="mb-fats" style="width:0%"></div></div>
+          <span class="macro-goal" id="mg-fats">/ — g</span>
+        </div>
+      </div>
+      <div class="nutr-actions">
+        <button class="nutr-btn-primary" onclick="openLogMealModal()">+ Log Meal</button>
+        <button class="nutr-btn-secondary" onclick="openGoalsModal()">⚙ Goals</button>
+      </div>
+      <div id="meals-list" class="meals-list">
+        <p class="empty-msg">No meals logged for this day.</p>
+      </div>
+    </div>
+
+    <!-- HEALTH PANEL -->
+    <div class="panel" id="panel-health">
+      <div class="card">
+        <div class="section-title">Connected Devices</div>
+        <div class="wearable-grid">
+          <div class="wearable-card">
+            <div class="wearable-icon">🟢</div>
+            <div class="wearable-info">
+              <h3>Google Health</h3>
+              <p class="wearable-sub">Fitbit · Google Fit</p>
+              <span class="wearable-status disconnected" id="status-google">Not connected</span>
+            </div>
+            <button class="connect-btn" id="btn-google" onclick="connectPlatform('google')">Connect</button>
+          </div>
+          <div class="wearable-card">
+            <div class="wearable-icon">🟠</div>
+            <div class="wearable-info">
+              <h3>Garmin</h3>
+              <p class="wearable-sub">Sports &amp; GPS watches</p>
+              <span class="wearable-status disconnected">Awaiting approval</span>
+            </div>
+            <button class="connect-btn" disabled>Coming Soon</button>
+          </div>
+          <div class="wearable-card">
+            <div class="wearable-icon">⚫</div>
+            <div class="wearable-info">
+              <h3>WHOOP</h3>
+              <p class="wearable-sub">Strain · Recovery · Sleep</p>
+              <span class="wearable-status disconnected">Available after deploy</span>
+            </div>
+            <button class="connect-btn" disabled>Coming Soon</button>
+          </div>
+          <div class="wearable-card">
+            <div class="wearable-icon">⚪</div>
+            <div class="wearable-info">
+              <h3>Apple Health</h3>
+              <p class="wearable-sub">Upload export file</p>
+              <span class="wearable-status disconnected" id="status-apple">Not imported</span>
+            </div>
+            <button class="connect-btn" onclick="document.getElementById('apple-upload').click()">Import</button>
+            <input type="file" id="apple-upload" accept=".xml" style="display:none" onchange="importAppleHealth(event)"/>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="health-date-nav">
+          <button onclick="changeHealthDate(-1)">&#8249;</button>
+          <span id="health-date-label"></span>
+          <button onclick="changeHealthDate(1)">&#8250;</button>
+        </div>
+        <div class="health-stats-grid">
+          <div class="health-stat-card">
+            <div class="health-stat-icon">👟</div>
+            <div class="health-stat-value" id="hstat-steps">—</div>
+            <div class="health-stat-label">Steps</div>
+          </div>
+          <div class="health-stat-card">
+            <div class="health-stat-icon">❤️</div>
+            <div class="health-stat-value" id="hstat-hr">—</div>
+            <div class="health-stat-label">Avg Heart Rate</div>
+          </div>
+          <div class="health-stat-card">
+            <div class="health-stat-icon">🔥</div>
+            <div class="health-stat-value" id="hstat-cal">—</div>
+            <div class="health-stat-label">Calories Burned</div>
+          </div>
+          <div class="health-stat-card">
+            <div class="health-stat-icon">😴</div>
+            <div class="health-stat-value" id="hstat-sleep">—</div>
+            <div class="health-stat-label">Sleep (hrs)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE PANEL -->
+    <div class="panel" id="panel-performance">
+
+      <div class="card">
+        <div class="perf-panel-header">
+          <div class="section-title" style="margin-bottom:0">Personal Records</div>
+          <button class="btn btn-primary" style="width:auto;padding:.5rem 1rem" onclick="openLogModal()">+ Log Test</button>
+        </div>
+        <div id="pr-grid" class="pr-grid">
+          <p class="empty-msg">No records yet. Log your first test!</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Progress Over Time</div>
+        <div class="perf-chart-controls">
+          <select id="progress-measurement-select" onchange="loadProgressChart()">
+            <option value="">Select a measurement...</option>
+          </select>
+          <div class="perf-range-pills">
+            <button class="perf-range-pill active" onclick="setProgressRange(30, this)">30D</button>
+            <button class="perf-range-pill" onclick="setProgressRange(90, this)">90D</button>
+            <button class="perf-range-pill" onclick="setProgressRange(365, this)">1Y</button>
+          </div>
+        </div>
+        <canvas id="perf-progress-chart" height="100"></canvas>
+      </div>
+
+      <!-- Body metrics chart -->
+      <div class="card">
+        <div class="section-title">Body Metrics</div>
+        <div class="perf-chart-controls">
+          <select id="body-metric-select" onchange="loadBodyMetricChart()">
+            <option value="">Select metric...</option>
+          </select>
+          <div class="perf-range-pills">
+            <button class="body-range-pill active" onclick="setBodyRange(90, this)">90D</button>
+            <button class="body-range-pill" onclick="setBodyRange(365, this)">1Y</button>
+            <button class="body-range-pill" onclick="setBodyRange(9999, this)">All</button>
+          </div>
+        </div>
+        <canvas id="body-metrics-chart" height="100"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Recent Logs</div>
+        <div id="performance-log-list" class="perf-log-list">
+          <p class="empty-msg">No logs yet.</p>
+        </div>
+      </div>
+
+      <!-- PR Timeline -->
+      <div class="card">
+        <div class="section-title">PR History</div>
+        <div id="pr-timeline-list" class="perf-log-list">
+          <p class="empty-msg">No PRs recorded yet.</p>
+        </div>
+      </div>
+
+      <!-- Export & Share -->
+      <div class="card">
+        <div class="section-title">Export &amp; Share</div>
+        <div class="export-grid">
+          <button class="export-btn" onclick="exportWorkoutsCSV()">
+            <span class="export-icon">📄</span>
+            <span class="export-label">Workout History</span>
+            <span class="export-sub">CSV</span>
+          </button>
+          <button class="export-btn" onclick="generateCombineCard()">
+            <span class="export-icon">🃏</span>
+            <span class="export-label">Combine Card</span>
+            <span class="export-sub">PNG</span>
+          </button>
+        </div>
+        <canvas id="combine-card-canvas" style="display:none"></canvas>
+      </div>
+
+    </div>
+
+    <!-- GOALS PANEL -->
+    <div class="panel" id="panel-goals">
+      <div class="goals-panel-header">
+        <div class="section-title" style="margin:0;font-size:1.2rem;">Goals</div>
+        <button class="btn btn-primary" style="width:auto;padding:0.5rem 1rem;" onclick="openGoalModal()">+ New Goal</button>
+      </div>
+      <div id="goals-completed-banner" style="display:none" class="goals-banner" id="goals-completed-banner">
+        <p id="goals-completed-text"></p>
+      </div>
+      <div id="goals-list">
+        <p class="empty-msg" style="padding:2rem 0">No goals yet. Hit "+ New Goal" to get started!</p>
+      </div>
+    </div>
+
+    <!-- CALENDAR PANEL -->
+    <div class="panel" id="panel-calendar">
+      <div class="cal-header">
+        <button class="cal-nav-btn" onclick="changeCalMonth(-1)">&#8249;</button>
+        <div class="cal-month-label" id="cal-month-label"></div>
+        <button class="cal-nav-btn" onclick="changeCalMonth(1)">&#8250;</button>
+      </div>
+      <div class="cal-legend">
+        <span class="cal-dot" style="background:var(--accent)"></span><span>Workout</span>
+        <span class="cal-dot planned"></span><span>Planned</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div id="cal-day-detail" class="cal-day-detail" style="display:none"></div>
+    </div>
+
+  </div><!-- /.view-main -->
+
+  <!-- LOG PERFORMANCE MODAL -->
+  <div id="log-perf-modal" class="nutr-modal-overlay" style="display:none" onclick="if(event.target===this)closeLogModal()">
+    <div class="nutr-modal-box">
+      <h3>Log Performance Test</h3>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="perf-category-select" onchange="filterMeasurementsByCategory()">
+          <option value="">All Categories</option>
+          <option value="power">Power</option>
+          <option value="speed">Speed &amp; Agility</option>
+          <option value="strength">Strength</option>
+          <option value="endurance">Endurance</option>
+          <option value="body">Body Composition</option>
+          <option value="athleticism">Athleticism</option>
+          <option value="hitting">Hitting</option>
+          <option value="pitching">Pitching</option>
+          <option value="fielding">Fielding</option>
+          <option value="bowling">Bowling</option>
+          <option value="batting">Batting</option>
+          <option value="shooting">Shooting</option>
+          <option value="technical">Technical</option>
+          <option value="position">Position-Specific</option>
+          <option value="fitness">Fitness</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Measurement</label>
+        <select id="perf-measurement-select" onchange="onMeasurementSelected()">
+          <option value="">Select measurement...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Value</label>
+        <div class="perf-input-unit">
+          <input type="number" id="perf-value-input" step="0.01" placeholder="0.00" />
+          <span id="perf-unit-label" class="perf-unit-label">—</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="perf-date-input" />
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="perf-notes-input" rows="2" placeholder="Conditions, equipment, context..." style="width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;color:var(--text);font-family:var(--font-body);resize:vertical"></textarea>
+      </div>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closeLogModal()">Cancel</button>
+        <button class="nutr-btn-primary" onclick="submitPerformanceLog()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUTRITION GOALS MODAL -->
+  <div id="goals-modal" class="nutr-modal-overlay" style="display:none" onclick="closeGoalsModal(event)">
+    <div class="nutr-modal-box">
+      <h3>Daily Nutrition Goals</h3>
+      <label>Calories (kcal)<input type="number" id="goal-calories" min="0" placeholder="e.g. 2500"></label>
+      <label>Protein (g)<input type="number" id="goal-protein" min="0" placeholder="e.g. 180"></label>
+      <label>Carbs (g)<input type="number" id="goal-carbs" min="0" placeholder="e.g. 300"></label>
+      <label>Fats (g)<input type="number" id="goal-fats" min="0" placeholder="e.g. 70"></label>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closeGoalsModal()">Cancel</button>
+        <button class="nutr-btn-primary" onclick="saveGoals()">Save Goals</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG MEAL MODAL -->
+  <div id="log-meal-modal" class="nutr-modal-overlay" style="display:none" onclick="closeLogMealModal(event)">
+    <div class="nutr-modal-box wide">
+      <h3>Log Meal</h3>
+      <div class="nutr-form-row">
+        <label>Meal type
+          <select id="lm-meal-type">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+          </select>
+        </label>
+        <label>Notes<input type="text" id="lm-notes" placeholder="Optional notes"></label>
+      </div>
+      <div class="food-search-bar">
+        <input type="text" id="food-search-input" placeholder="Search food (e.g. chicken breast)…" oninput="onFoodSearchInput()">
+        <button onclick="searchFoods()">Search</button>
+      </div>
+      <div id="food-results" class="food-results" style="display:none"></div>
+      <details class="manual-entry">
+        <summary>Add manually</summary>
+        <div class="manual-fields">
+          <input type="text"   id="me-name"     placeholder="Food name *">
+          <input type="number" id="me-qty"      placeholder="Qty" value="1" min="0" step="0.1">
+          <input type="text"   id="me-unit"     placeholder="Unit (g, oz…)">
+          <input type="number" id="me-calories" placeholder="Calories" min="0">
+          <input type="number" id="me-protein"  placeholder="Protein g" min="0" step="0.1">
+          <input type="number" id="me-carbs"    placeholder="Carbs g" min="0" step="0.1">
+          <input type="number" id="me-fats"     placeholder="Fats g" min="0" step="0.1">
+          <button class="add-manual-btn" onclick="addManualItem()">Add</button>
+        </div>
+      </details>
+      <div id="staged-items" class="staged-items">
+        <p class="empty-msg">No items added yet.</p>
+      </div>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closeLogMealModal()">Cancel</button>
+        <button class="nutr-btn-primary" onclick="saveMeal()">Save Meal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOAL CREATION MODAL -->
+  <div id="goal-create-modal" class="nutr-modal-overlay" style="display:none" onclick="if(event.target===this)closeGoalModal()">
+    <div class="nutr-modal-box">
+      <h3>New Goal</h3>
+      <div class="form-group">
+        <label>Goal Title</label>
+        <input type="text" id="goal-title" placeholder='e.g. Bench 225 lbs, Run sub-6 mile'/>
+      </div>
+      <div class="form-group">
+        <label>Link to Measurement (optional)</label>
+        <select id="goal-measurement-select">
+          <option value="">— None —</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Target Value <span id="goal-target-unit" style="color:var(--accent);font-size:0.7rem;"></span></label>
+          <input type="number" id="goal-target-value" step="0.01" placeholder="e.g. 102.1"/>
+        </div>
+        <div class="form-group">
+          <label>Target Date</label>
+          <input type="date" id="goal-target-date"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="goal-notes" rows="2" placeholder="Context, why this matters..."></textarea>
+      </div>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closeGoalModal()">Cancel</button>
+        <button class="nutr-btn-primary" onclick="saveGoal()">Save Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRAM DETAIL MODAL -->
+  <div id="program-detail-modal" class="nutr-modal-overlay" style="display:none" onclick="if(event.target===this)closeProgramModal()">
+    <div class="nutr-modal-box wide">
+      <div class="prog-modal-header">
+        <h3 id="prog-modal-title">Program</h3>
+        <div id="prog-modal-meta" class="prog-modal-meta"></div>
+      </div>
+      <div id="prog-modal-desc" class="prog-modal-desc"></div>
+      <div id="prog-modal-days"></div>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closeProgramModal()">Close</button>
+        <button class="nutr-btn-primary" id="prog-modal-save-btn">Save to My Programs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE CUSTOM PROGRAM MODAL -->
+  <div id="create-program-modal" class="nutr-modal-overlay" style="display:none" onclick="if(event.target===this)closeCreateProgramModal()">
+    <div class="nutr-modal-box">
+      <h3>Create Program</h3>
+      <div class="form-group">
+        <label>Program Title</label>
+        <input type="text" id="cp-title" placeholder="e.g. My Summer Strength Plan"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sport</label>
+          <select id="cp-sport">
+            <option value="">General</option>
+            <option>Basketball</option><option>Baseball</option><option>Cricket</option>
+            <option>Football</option><option>Soccer</option><option>Track &amp; Field</option>
+            <option>Swimming</option><option>Weightlifting</option><option>CrossFit</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Days / Week</label>
+          <input type="number" id="cp-days-per-week" placeholder="4" min="1" max="7"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="cp-description" rows="2" placeholder="What is this program for?"></textarea>
+      </div>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closeCreateProgramModal()">Cancel</button>
+        <button class="nutr-btn-primary" onclick="saveCustomProgram()">Create Program</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN SESSION MODAL -->
+  <div id="plan-session-modal" class="nutr-modal-overlay" style="display:none" onclick="if(event.target===this)closePlanModal()">
+    <div class="nutr-modal-box">
+      <h3 id="plan-modal-title">Plan Session</h3>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="plan-date" readonly style="opacity:.6"/>
+      </div>
+      <div class="form-group">
+        <label>Sport</label>
+        <select id="plan-sport">
+          <option value="">General</option>
+          <option>Basketball</option><option>Baseball</option><option>Cricket</option>
+          <option>Football</option><option>Soccer</option><option>Track &amp; Field</option>
+          <option>Swimming</option><option>Weightlifting</option><option>CrossFit</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="plan-notes" rows="2" placeholder="What do you plan to work on?"></textarea>
+      </div>
+      <div class="nutr-modal-actions">
+        <button class="nutr-btn-secondary" onclick="closePlanModal()">Cancel</button>
+        <button class="nutr-btn-primary" onclick="savePlannedSession()">Save Plan</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.app -->
+
+<!-- ── AI Coach Chat ─────────────────────────────────────────────────────── -->
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="AI Coach">
+  <span class="chat-fab-icon">🤖</span>
+  <span class="chat-fab-label">Coach</span>
+</button>
+
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-panel-header">
+    <div class="chat-panel-title">
+      <div class="chat-panel-avatar">🤖</div>
+      <div>
+        <div class="chat-panel-name">AI Coach</div>
+        <div class="chat-panel-status">Knows your data</div>
+      </div>
+    </div>
+    <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-bubble assistant">
+      <div class="chat-bubble-text">Hey! I'm your AI coach. I have access to your workouts, PRs, goals, and daily data — ask me anything about your training.</div>
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chat-input" placeholder="Ask your coach…" rows="1"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+      onkeydown="onChatKey(event)"></textarea>
+    <button class="chat-send-btn" id="chat-send-btn" onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/workouts.js"></script>
+<script src="js/nutrition.js"></script>
+<script src="js/health.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/goals.js"></script>
+<script src="js/programs.js"></script>
+<script src="js/ai-features.js"></script>
+<script src="js/calendar-view.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/export.js"></script>
+<script src="js/chat.js"></script>
+</body>
+</html>
